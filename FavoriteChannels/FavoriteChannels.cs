@@ -76,22 +76,19 @@ namespace FavoriteChannels
             {
                 if (!File.Exists(favChannelsFilePath))
                 {
-                    Console.WriteLine(debug + "creating file");
                     File.Create(favChannelsFilePath).Close();
-                    Console.WriteLine("Created file!");
+                    return false;
                 }
 
                 if (isEmpty(favChannelsFilePath))
-                {
-                    return false;
-                }
+                    return false;                
 
                 else
                 {
                     Console.WriteLine("File is not empty, gathering favorite channels!");
                     string line;
 
-                    using (StreamReader reader = new StreamReader("file.txt"))
+                    using (StreamReader reader = new StreamReader(favChannelsFilePath))
                     {
                         while ((line = reader.ReadLine()) != null)
                         {
@@ -104,7 +101,7 @@ namespace FavoriteChannels
                     }
                 }
 
-                return true;
+                return false;
             }
 
             if (info.targetMethod.Equals("ChatMessage"))
