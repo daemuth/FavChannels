@@ -67,6 +67,7 @@ namespace FavoriteChannels
                 if (!File.Exists(favChannelsFilePath))
                 {
                     File.Create(favChannelsFilePath);
+                    return false;
                 }
 
                 string line;
@@ -99,7 +100,7 @@ namespace FavoriteChannels
                     {
                         String channelToAdd = splitted[1].ToLower();
 
-                        if (!FavoriteChannelsList.Contains(channelToAdd)) //If channel is not on list already
+                        if (!FavoriteChannelsList.Contains(channelToAdd) && (!channelToAdd.Contains("trading") && !channelToAdd.Contains("general"))) //If channel is not on list already
                         {
                             FavoriteChannelsList.Add(channelToAdd);
 
@@ -145,15 +146,14 @@ namespace FavoriteChannels
                         {
                             msg(splitted[1] + " was not on the Favorite Channels list!");
                         }
-                    }
-                    return false;
+                    }                    
                 }
               
                 if(rcmm.text.StartsWith("/acc") || rcmm.text.StartsWith("/addcurrentchannel"))
                 {
                     String channelToAdd = App.ArenaChat.ChatRooms.GetCurrentRoom().ToLower();
 
-                    if (!FavoriteChannelsList.Contains(channelToAdd)) //If channel is not on list already
+                    if (!FavoriteChannelsList.Contains(channelToAdd) && (!channelToAdd.Contains("trading") && !channelToAdd.Contains("general"))) //If channel is not on list already
                     {
                         FavoriteChannelsList.Add(channelToAdd);
 
@@ -188,11 +188,28 @@ namespace FavoriteChannels
                         sw.Close();
 
                         // splitted[1] instead of usernameToIgnore because of caps :)
-                        msg("Added channel " + channeltoRemove + " to FavoriteChannels list!");
+                        msg("Removed channel " + channeltoRemove + " from FavoriteChannels list!");
                     }
+
                     else
                     {
                         msg(channeltoRemove + " is already on the favorite channels list.");
+                    }
+                }
+
+                if(rcmm.text.StartsWith("/listfavorites") || rcmm.text.Contains("/lf"))
+                {
+                    msg("Current favorite channels:");
+                    
+                    if (FavoriteChannelsList.Count == 0)
+                        msg("There are currently no favorite channels added! You can add a channel by typing '/ac [channelname]' or if you want to add your current channel, you can type '/acc'");
+                   
+                    else
+                    {
+                        foreach (string s in FavoriteChannelsList)
+                        {
+                            msg(s);
+                        }
                     }
                 }
             }
@@ -210,7 +227,7 @@ namespace FavoriteChannels
             return (f.Length > 0) ? false : true;        
         }
 
-        public void msg(String txt)
+        public void msg(String txt) //Cretids go t
         {
             RoomChatMessageMessage rcmm = new RoomChatMessageMessage();
             rcmm.from = "<color=#ffb400>FavoriteChannels</color>";
