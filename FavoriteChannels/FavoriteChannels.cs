@@ -83,9 +83,6 @@ namespace FavoriteChannels
 
                 if (isEmpty(favChannelsFilePath))
                 {
-                    Console.WriteLine(debug + "File is empty, printing stuff");
-                    msg("Hey! Seems you have no favorite channels added yet. Here are which can make your life easier:");
-                    printCommands();
                     return false;
                 }
 
