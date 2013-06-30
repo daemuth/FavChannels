@@ -1,0 +1,6 @@
+d:\Cloud\Dropbox\Scrolls mods\FavoriteChannels\FavoriteChannels\bin\Release\FavoriteChannels.mod.dll
+d:\Cloud\Dropbox\Scrolls mods\FavoriteChannels\FavoriteChannels\bin\Release\Assembly-CSharp.dll
+d:\Cloud\Dropbox\Scrolls mods\FavoriteChannels\FavoriteChannels\bin\Release\Mono.Cecil.dll
+d:\Cloud\Dropbox\Scrolls mods\FavoriteChannels\FavoriteChannels\bin\Release\ScrollsModLoader.Interfaces.dll
+d:\Cloud\Dropbox\Scrolls mods\FavoriteChannels\FavoriteChannels\bin\Release\UnityEngine.dll
+d:\Cloud\Dropbox\Scrolls mods\FavoriteChannels\FavoriteChannels\obj\Release\FavoriteChannels.mod.dll
