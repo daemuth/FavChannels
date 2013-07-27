@@ -28,19 +28,16 @@
     <ConsolePause>false</ConsolePause>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Assembly-CSharp">
+      <HintPath>C:\Users\Levela\AppData\Local\Mojang\Scrolls\game\Scrolls_Data\Managed\Assembly-CSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="ScrollsModLoader">
+      <HintPath>C:\Users\Levela\AppData\Local\Mojang\Scrolls\game\Scrolls_Data\Managed\ScrollsModLoader.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="Assembly-CSharp">
-      <HintPath>..\Assembly-CSharp.dll</HintPath>
-    </Reference>
-    <Reference Include="ScrollsModLoader.Interfaces">
-      <HintPath>..\ScrollsModLoader.Interfaces.dll</HintPath>
-    </Reference>
     <Reference Include="UnityEngine">
       <HintPath>..\UnityEngine.dll</HintPath>
-    </Reference>
-    <Reference Include="Mono.Cecil">
-      <HintPath>..\Mono.Cecil.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

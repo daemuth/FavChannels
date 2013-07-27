@@ -14,7 +14,8 @@ using System.Net;
 using System.Text.RegularExpressions;
 
 namespace FavoriteChannels
-{/*___                     _ _         ___ _                            _     
+{/*
+   ___                     _ _         ___ _                            _     
   / __\_ ___   _____  _ __(_) |_ ___  / __\ |__   __ _ _ __  _ __   ___| |___ 
  / _\/ _` \ \ / / _ \| '__| | __/ _ \/ /  | '_ \ / _` | '_ \| '_ \ / _ \ / __|
 / / | (_| |\ V / (_) | |  | | ||  __/ /___| | | | (_| | | | | | | |  __/ \__ \
@@ -47,7 +48,7 @@ namespace FavoriteChannels
 
         public static int GetVersion()
         {
-            return 1;
+            return 2;
         }
 
         public static MethodDefinition[] GetHooks(TypeDefinitionCollection scrollsTypes, int version)
@@ -67,20 +68,19 @@ namespace FavoriteChannels
         }
 
 
-        public override bool BeforeInvoke(InvocationInfo info, out object returnValue)
+        public override void BeforeInvoke(InvocationInfo info)
         {
-            returnValue = null;
 
             if (info.targetMethod.Equals("Start"))
             {
                 if (!File.Exists(favChannelsFilePath))
                 {
                     File.Create(favChannelsFilePath).Close();
-                    return false;
+                    return;
                 }
 
                 if (isEmpty(favChannelsFilePath))
-                    return false;
+                    return;
 
                 else
                 {
@@ -100,7 +100,7 @@ namespace FavoriteChannels
                     }
                 }
 
-                return false;
+                return;
             }
 
             if (info.targetMethod.Equals("sendRequest"))
@@ -111,7 +111,7 @@ namespace FavoriteChannels
 
                     if (rcmm.text.Equals("/acc") || rcmm.text.StartsWith("/addcurrentchannel"))
                     {
-                        String channelToAdd = App.ArenaChat.ChatRooms.GetCurrentRoom().ToLower();
+                        String channelToAdd = App.ArenaChat.ChatRooms.GetCurrentRoomName().ToLower();
 
                         if (!FavoriteChannelsList.Contains(channelToAdd) && (!channelToAdd.Contains("trading") && !channelToAdd.Contains("general"))) //If channel is not on list already
                         {
@@ -123,16 +123,18 @@ namespace FavoriteChannels
 
                             // splitted[1] instead of usernameToIgnore because of caps :)
                             msg("Added channel " + channelToAdd + " to FavoriteChannels list!");
+                            return;
                         }
                         else if (channelToAdd.Contains("trading") || channelToAdd.Contains("general"))
                         {
                             msg("Sorry but you may not add trading / general rooms to favorites.");
+                            return;
                         }
 
                         else
                             msg("Channel " + channelToAdd + " is already on the favorite channels list.");
 
-                        return true;
+                        return;
                     }
 
 
@@ -142,7 +144,7 @@ namespace FavoriteChannels
 
                         if (splitted.Length >= 2)
                         {
-                            String channelToAdd = splitted[1].ToLower();
+                            string channelToAdd = String.Join(" ", splitted, 1, splitted.Length - 1);                        
 
                             if (!FavoriteChannelsList.Contains(channelToAdd) && (!channelToAdd.Contains("trading") && !channelToAdd.Contains("general"))) //If channel is not on list already
                             {
@@ -152,7 +154,7 @@ namespace FavoriteChannels
                                 sw.WriteLine(channelToAdd);
                                 sw.Close();
 
-                                msg("Added channel " + splitted[1] + " to FavoriteChannels list!");
+                                msg("Added channel " + channelToAdd + " to FavoriteChannels list!");
                             }
 
                             else if (splitted[1].Contains("trading") || splitted[1].Contains("general"))
@@ -165,12 +167,12 @@ namespace FavoriteChannels
 
                         }
 
-                        return true;
+                        return;
                     }
 
                     if (rcmm.text.StartsWith("/removecurrentchannel") || rcmm.text.Equals("/rcc"))
                     {
-                        String channeltoRemove = App.ArenaChat.ChatRooms.GetCurrentRoom().ToLower();
+                        String channeltoRemove = App.ArenaChat.ChatRooms.GetCurrentRoomName().ToLower();
 
                         if (FavoriteChannelsList.Contains(channeltoRemove)) //If channel is on list already
                         {
@@ -194,7 +196,7 @@ namespace FavoriteChannels
                             msg("Channel " + channeltoRemove + " was not on the favorites list.");
                         }
 
-                        return true;
+                        return;
                     }
 
                     if (rcmm.text.StartsWith("/removechannel") || rcmm.text.StartsWith("/rc"))
@@ -225,7 +227,7 @@ namespace FavoriteChannels
                                 msg(splitted[1] + " was not on the Favorite Channels list!");
                         }
 
-                        return true;
+                        return;
                     }
 
                     if (rcmm.text.Equals("/listfavorites") || rcmm.text.Equals("/lf") || rcmm.text.Equals("/favorites"))
@@ -243,20 +245,20 @@ namespace FavoriteChannels
                             }
                         }
 
-                        return true;
+                        return;
                     }
 
                     if (rcmm.text.Equals("/fhelp") || rcmm.text.Equals("/fcommands") || rcmm.text.Equals("/favoriteshelp"))
                     {
                         msg("Favorite Channels command list:");
                         printCommands();
-                        return true;
+                        return;
                     }
 
                 }
-                return false;
+                return;
             }
-            return false;
+            return;
         }
 
         public override void AfterInvoke(InvocationInfo info, ref object returnValue)
@@ -274,7 +276,7 @@ namespace FavoriteChannels
             RoomChatMessageMessage rcmm = new RoomChatMessageMessage();
             rcmm.from = "<color=#ffb400>FavoriteChannels</color>";
             rcmm.text = "<color=#f0dec5>" + txt + "</color>";
-            rcmm.roomName = App.ArenaChat.ChatRooms.GetCurrentRoom();
+            rcmm.roomName = App.ArenaChat.ChatRooms.GetCurrentRoomName();
 
             App.ChatUI.handleMessage(rcmm);
             App.ArenaChat.ChatRooms.ChatMessage(rcmm);
