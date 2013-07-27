@@ -48,7 +48,7 @@ namespace FavoriteChannels
 
         public static int GetVersion()
         {
-            return 2;
+            return 3;
         }
 
         public static MethodDefinition[] GetHooks(TypeDefinitionCollection scrollsTypes, int version)
@@ -67,42 +67,8 @@ namespace FavoriteChannels
             }
         }
 
-
-        public override void BeforeInvoke(InvocationInfo info)
+        public override bool WantsToReplace(InvocationInfo info)
         {
-
-            if (info.targetMethod.Equals("Start"))
-            {
-                if (!File.Exists(favChannelsFilePath))
-                {
-                    File.Create(favChannelsFilePath).Close();
-                    return;
-                }
-
-                if (isEmpty(favChannelsFilePath))
-                    return;
-
-                else
-                {
-                    Console.WriteLine("File is not empty, gathering favorite channels!");
-                    string line;
-
-                    using (StreamReader reader = new StreamReader(favChannelsFilePath))
-                    {
-                        while ((line = reader.ReadLine()) != null)
-                        {
-                            if (!line.Contains("trading") && !line.Contains("general"))
-                            {
-                                FavoriteChannelsList.Add(line);
-                                App.ArenaChat.RoomEnter(line);
-                            }
-                        }
-                    }
-                }
-
-                return;
-            }
-
             if (info.targetMethod.Equals("sendRequest"))
             {
                 if (info.arguments[0] is RoomChatMessageMessage)
@@ -123,18 +89,18 @@ namespace FavoriteChannels
 
                             // splitted[1] instead of usernameToIgnore because of caps :)
                             msg("Added channel " + channelToAdd + " to FavoriteChannels list!");
-                            return;
+                            return true;
                         }
                         else if (channelToAdd.Contains("trading") || channelToAdd.Contains("general"))
                         {
                             msg("Sorry but you may not add trading / general rooms to favorites.");
-                            return;
+                            return true;
                         }
 
                         else
                             msg("Channel " + channelToAdd + " is already on the favorite channels list.");
 
-                        return;
+                        return true;
                     }
 
 
@@ -144,7 +110,7 @@ namespace FavoriteChannels
 
                         if (splitted.Length >= 2)
                         {
-                            string channelToAdd = String.Join(" ", splitted, 1, splitted.Length - 1);                        
+                            string channelToAdd = String.Join(" ", splitted, 1, splitted.Length - 1);
 
                             if (!FavoriteChannelsList.Contains(channelToAdd) && (!channelToAdd.Contains("trading") && !channelToAdd.Contains("general"))) //If channel is not on list already
                             {
@@ -155,19 +121,21 @@ namespace FavoriteChannels
                                 sw.Close();
 
                                 msg("Added channel " + channelToAdd + " to FavoriteChannels list!");
+                                return true;
                             }
 
                             else if (splitted[1].Contains("trading") || splitted[1].Contains("general"))
                             {
                                 msg("Sorry but you may not add trading / general rooms to favorites.");
+                                return true;
                             }
 
                             else
-                                msg("Channel " + splitted[1] + " is already on the favorite channels list.");
+                                msg("Channel " + channelToAdd + " is already on the favorite channels list.");
 
                         }
 
-                        return;
+                        return false;
                     }
 
                     if (rcmm.text.StartsWith("/removecurrentchannel") || rcmm.text.Equals("/rcc"))
@@ -196,7 +164,7 @@ namespace FavoriteChannels
                             msg("Channel " + channeltoRemove + " was not on the favorites list.");
                         }
 
-                        return;
+                        return true;
                     }
 
                     if (rcmm.text.StartsWith("/removechannel") || rcmm.text.StartsWith("/rc"))
@@ -205,7 +173,7 @@ namespace FavoriteChannels
 
                         if (splitted.Length >= 2)
                         {
-                            String channeltoRemove = splitted[1].ToLower();
+                            string channeltoRemove = String.Join(" ", splitted, 1, splitted.Length - 1);
 
                             if (FavoriteChannelsList.Contains(channeltoRemove)) //If channel is not on list already
                             {
@@ -220,14 +188,14 @@ namespace FavoriteChannels
                                 }
                                 sw.Close();
 
-                                msg("Removed channel " + splitted[1] + " from FavoriteChannels list!");
+                                msg("Removed channel " + channeltoRemove + " from FavoriteChannels list!");
                             }
 
                             else
-                                msg(splitted[1] + " was not on the Favorite Channels list!");
+                                msg(channeltoRemove + " was not on the Favorite Channels list!");
                         }
 
-                        return;
+                        return true;
                     }
 
                     if (rcmm.text.Equals("/listfavorites") || rcmm.text.Equals("/lf") || rcmm.text.Equals("/favorites"))
@@ -245,20 +213,55 @@ namespace FavoriteChannels
                             }
                         }
 
-                        return;
+                        return true;
                     }
 
                     if (rcmm.text.Equals("/fhelp") || rcmm.text.Equals("/fcommands") || rcmm.text.Equals("/favoriteshelp"))
                     {
                         msg("Favorite Channels command list:");
                         printCommands();
-                        return;
+                        return true;
                     }
 
                 }
-                return;
+
+                return false;
             }
-            return;
+
+            return false;
+        }
+
+        public override void BeforeInvoke(InvocationInfo info)
+        {
+            if (info.targetMethod.Equals("Start"))
+            {
+                if (!File.Exists(favChannelsFilePath))
+                     File.Create(favChannelsFilePath).Close();
+                
+
+                if (isEmpty(favChannelsFilePath))
+                    return;
+
+                else
+                {
+                    Console.WriteLine("File is not empty, gathering favorite channels!");
+                    string line;
+
+                    using (StreamReader reader = new StreamReader(favChannelsFilePath))
+                    {
+                        while ((line = reader.ReadLine()) != null)
+                        {
+                            if (!line.Contains("trading") && !line.Contains("general"))
+                            {
+                                FavoriteChannelsList.Add(line);
+                                App.ArenaChat.RoomEnter(line);
+                            }
+                        }
+                    }
+                }
+                
+                return;
+            }            
         }
 
         public override void AfterInvoke(InvocationInfo info, ref object returnValue)
