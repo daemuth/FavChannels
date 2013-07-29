@@ -23,6 +23,7 @@ namespace FavoriteChannels
                                 
                             mod by levela.
                            Requested by TPC.
+Thanks fly out to kbasten and the whole ScrollsGuide team for making this possible                           
                          www.scrollsguide.com
 
                                                                               */
@@ -61,6 +62,7 @@ namespace FavoriteChannels
                     scrollsTypes["ArenaChat"].Methods.GetMethod("RoomEnter")[0],
             	};
             }
+
             catch
             {
                 return new MethodDefinition[] { };
@@ -69,11 +71,15 @@ namespace FavoriteChannels
 
         public override bool WantsToReplace(InvocationInfo info)
         {
-            if (info.targetMethod.Equals("sendRequest"))
+             return (info.targetMethod.Equals("sendRequest") && info.arguments[0] is RoomChatMessageMessage) ? true : false;
+        }
+
+		public override void ReplaceMethod (InvocationInfo info, out object returnValue)
+		{
+
+         if (info.targetMethod.Equals("sendRequest") && info.arguments[0] is RoomChatMessageMessage)
             {
-                if (info.arguments[0] is RoomChatMessageMessage)
-                {
-                    RoomChatMessageMessage rcmm = (RoomChatMessageMessage)info.arguments[0];
+                RoomChatMessageMessage rcmm = (RoomChatMessageMessage)info.arguments[0];
 
                     if (rcmm.text.Equals("/acc") || rcmm.text.StartsWith("/addcurrentchannel"))
                     {
@@ -89,22 +95,20 @@ namespace FavoriteChannels
 
                             // splitted[1] instead of usernameToIgnore because of caps :)
                             msg("Added channel " + channelToAdd + " to FavoriteChannels list!");
-                            return true;
+                            
                         }
                         else if (channelToAdd.Contains("trading") || channelToAdd.Contains("general"))
                         {
                             msg("Sorry but you may not add trading / general rooms to favorites.");
-                            return true;
+                           
                         }
 
                         else
                             msg("Channel " + channelToAdd + " is already on the favorite channels list.");
-
-                        return true;
                     }
 
 
-                    if (rcmm.text.StartsWith("/addchannel") || rcmm.text.StartsWith("/ac"))
+                    else if (rcmm.text.StartsWith("/addchannel") || rcmm.text.StartsWith("/ac"))
                     {
                         String[] splitted = rcmm.text.Split(' ');
 
@@ -121,24 +125,20 @@ namespace FavoriteChannels
                                 sw.Close();
 
                                 msg("Added channel " + channelToAdd + " to FavoriteChannels list!");
-                                return true;
+                      
                             }
 
                             else if (splitted[1].Contains("trading") || splitted[1].Contains("general"))
                             {
                                 msg("Sorry but you may not add trading / general rooms to favorites.");
-                                return true;
+                             
                             }
-
                             else
                                 msg("Channel " + channelToAdd + " is already on the favorite channels list.");
-
                         }
-
-                        return false;
                     }
 
-                    if (rcmm.text.StartsWith("/removecurrentchannel") || rcmm.text.Equals("/rcc"))
+                    else if (rcmm.text.StartsWith("/removecurrentchannel") || rcmm.text.Equals("/rcc"))
                     {
                         String channeltoRemove = App.ArenaChat.ChatRooms.GetCurrentRoomName().ToLower();
 
@@ -163,11 +163,9 @@ namespace FavoriteChannels
                         {
                             msg("Channel " + channeltoRemove + " was not on the favorites list.");
                         }
-
-                        return true;
                     }
 
-                    if (rcmm.text.StartsWith("/removechannel") || rcmm.text.StartsWith("/rc"))
+                    else if (rcmm.text.StartsWith("/removechannel") || rcmm.text.StartsWith("/rc"))
                     {
                         String[] splitted = rcmm.text.Split(' ');
 
@@ -194,11 +192,9 @@ namespace FavoriteChannels
                             else
                                 msg(channeltoRemove + " was not on the Favorite Channels list!");
                         }
-
-                        return true;
                     }
 
-                    if (rcmm.text.Equals("/listfavorites") || rcmm.text.Equals("/lf") || rcmm.text.Equals("/favorites"))
+                    else if (rcmm.text.Equals("/listfavorites") || rcmm.text.Equals("/lf") || rcmm.text.Equals("/favorites"))
                     {
                         msg("Current favorite channels:");
 
@@ -212,24 +208,18 @@ namespace FavoriteChannels
                                 msg(s);
                             }
                         }
-
-                        return true;
                     }
 
-                    if (rcmm.text.Equals("/fhelp") || rcmm.text.Equals("/fcommands") || rcmm.text.Equals("/favoriteshelp"))
+                    else if (rcmm.text.Equals("/fhelp") || rcmm.text.Equals("/fcommands") || rcmm.text.Equals("/favoriteshelp"))
                     {
                         msg("Favorite Channels command list:");
                         printCommands();
-                        return true;
                     }
 
-                }
+                }            
+         returnValue = null;
 
-                return false;
-            }
-
-            return false;
-        }
+		}
 
         public override void BeforeInvoke(InvocationInfo info)
         {
@@ -259,9 +249,7 @@ namespace FavoriteChannels
                         }
                     }
                 }
-                
-                return;
-            }            
+            }
         }
 
         public override void AfterInvoke(InvocationInfo info, ref object returnValue)
