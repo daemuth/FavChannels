@@ -49,7 +49,7 @@ Thanks fly out to kbasten and the whole ScrollsGuide team for making this possib
 
         public static int GetVersion()
         {
-            return 3;
+            return 4;
         }
 
         public static MethodDefinition[] GetHooks(TypeDefinitionCollection scrollsTypes, int version)
@@ -71,7 +71,13 @@ Thanks fly out to kbasten and the whole ScrollsGuide team for making this possib
 
         public override bool WantsToReplace(InvocationInfo info)
         {
-             return (info.targetMethod.Equals("sendRequest") && info.arguments[0] is RoomChatMessageMessage) ? true : false;
+            if (info.targetMethod.Equals("sendRequest") && info.arguments[0] is RoomChatMessageMessage)
+            {
+                RoomChatMessageMessage rcmm = (RoomChatMessageMessage)info.arguments[0];
+                return (isCommand(rcmm)) ? true : false;
+            }
+
+            return false;
         }
 
 		public override void ReplaceMethod (InvocationInfo info, out object returnValue)
@@ -83,7 +89,7 @@ Thanks fly out to kbasten and the whole ScrollsGuide team for making this possib
 
                     if (rcmm.text.Equals("/acc") || rcmm.text.StartsWith("/addcurrentchannel"))
                     {
-                        String channelToAdd = App.ArenaChat.ChatRooms.GetCurrentRoomName().ToLower();
+                        string channelToAdd = App.ArenaChat.ChatRooms.GetCurrentRoomName().ToLower();
 
                         if (!FavoriteChannelsList.Contains(channelToAdd) && (!channelToAdd.Contains("trading") && !channelToAdd.Contains("general"))) //If channel is not on list already
                         {
@@ -250,6 +256,16 @@ Thanks fly out to kbasten and the whole ScrollsGuide team for making this possib
                     }
                 }
             }
+        }
+
+        public static bool isCommand(RoomChatMessageMessage rcmm)
+        {
+            if (rcmm.text.Equals("/acc") || rcmm.text.StartsWith("/addcurrentchannel") || rcmm.text.StartsWith("/addchannel") || rcmm.text.StartsWith("/ac") || rcmm.text.StartsWith("/removecurrentchannel") || rcmm.text.Equals("/rcc") || rcmm.text.StartsWith("/removechannel") || rcmm.text.StartsWith("/rc") || rcmm.text.Equals("/listfavorites") || rcmm.text.Equals("/lf") || rcmm.text.Equals("/favorites"))
+            {
+                return true;
+            }
+         
+            return false;
         }
 
         public override void AfterInvoke(InvocationInfo info, ref object returnValue)
